@@ -1,0 +1,121 @@
+openapi: 3.0.3
+info:
+  title: Tapo local lights API
+  version: 0.1.0
+  description: >
+    Local HTTP/JSON API for Tapo bulbs over TPAP (no cloud). Served by `tapo-server`,
+    listening on 127.0.0.1 by default. Every /v1 request needs `Authorization: Bearer <token>`.
+    Requests carrying an Origin header are rejected unless the origin was allowed at startup.
+servers:
+  - url: http://127.0.0.1:8787
+security:
+  - bearer: []
+paths:
+  /health:
+    get:
+      summary: Liveness check (no token needed)
+      security: []
+      responses:
+        "200": { description: Alive, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean } } } } } }
+  /v1/lights:
+    get:
+      summary: State of every configured bulb
+      description: A bulb that cannot be reached appears as `{host, error}` instead of failing the whole call.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lights: { type: array, items: { $ref: "#/components/schemas/LightOrError" } }
+        "401": { $ref: "#/components/responses/Error" }
+  /v1/lights/all:
+    post:
+      summary: Turn every bulb on or off
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [on], additionalProperties: false, properties: { on: { type: boolean } } }
+      responses:
+        "200":
+          description: Resulting states
+          content: { application/json: { schema: { type: object, properties: { lights: { type: array, items: { $ref: "#/components/schemas/LightOrError" } } } } } }
+        "400": { $ref: "#/components/responses/Error" }
+  /v1/lights/{host}:
+    parameters:
+      - { name: host, in: path, required: true, schema: { type: string }, description: IP of a configured bulb }
+    get:
+      summary: State of one bulb
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Light" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+        "423": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+        "504": { $ref: "#/components/responses/Error" }
+    post:
+      summary: Change one bulb (PUT and PATCH behave the same)
+      description: Send only what you want to change. `hue` and `saturation` go together; `colorTemp` excludes them.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Change" }
+      responses:
+        "200": { description: New state, content: { application/json: { schema: { $ref: "#/components/schemas/Light" } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "423": { $ref: "#/components/responses/Error" }
+        "502": { $ref: "#/components/responses/Error" }
+        "504": { $ref: "#/components/responses/Error" }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+  responses:
+    Error:
+      description: >
+        Error. kind is one of unauthorized, forbidden, bad_request, not_found, method_not_allowed,
+        locked (paused after a failed login so the bulb is not locked; see retryInSecs),
+        device, unsupported, unreachable, protocol.
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Error:
+      type: object
+      required: [error, kind]
+      properties:
+        error: { type: string }
+        kind: { type: string }
+        retryInSecs: { type: integer }
+    Light:
+      type: object
+      properties:
+        host: { type: string }
+        name: { type: string }
+        model: { type: string }
+        on: { type: boolean }
+        brightness: { type: integer, minimum: 0, maximum: 100 }
+        supportsColor: { type: boolean }
+        hue: { type: integer, minimum: 0, maximum: 360 }
+        saturation: { type: integer, minimum: 0, maximum: 100 }
+        supportsTemp: { type: boolean }
+        colorTemp: { type: integer, description: Kelvin; 0 while a color is active }
+        tempMin: { type: integer }
+        tempMax: { type: integer }
+    LightOrError:
+      oneOf:
+        - $ref: "#/components/schemas/Light"
+        - type: object
+          required: [host, error]
+          properties: { host: { type: string }, error: { type: string } }
+    Change:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        on: { type: boolean }
+        brightness: { type: integer, minimum: 1, maximum: 100 }
+        colorTemp: { type: integer, minimum: 1000, maximum: 10000 }
+        hue: { type: integer, minimum: 0, maximum: 360 }
+        saturation: { type: integer, minimum: 0, maximum: 100 }

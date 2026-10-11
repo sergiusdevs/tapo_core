@@ -1,0 +1,24 @@
+{
+ "password": "test-password-123",
+ "credentials_string": "a79425d5dfc9cb6e5ed85fa44bf4d63d73e6a5b8",
+ "register": {
+  "dev_random": "ZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4CBgoM=",
+  "dev_salt": "AAECAwQFBgcICQoLDA0ODw==",
+  "dev_share": "BEccPnWMSQQoW7p+UxGO0PUkresHV9Jb0vjnsNdt+nFM3VIPesqKi5F6zDf1HejwybvjrYWDgucC3CWhLQn3qFg=",
+  "cipher_suites": 1,
+  "iterations": 3000,
+  "encryption": "aes_128_ccm"
+ },
+ "user_random": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
+ "x_hex": "f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+ "user_share": "BAxLlX5FPEjZ6vU73u5xrK9tY2o2tYGvHDaxGWfEPO1BpMnaETNeJz+9LBuMuKN5Rf50ThernSilc5YLFYNOO+A=",
+ "user_confirm": "a8ERl9MHDgculnzQkyUSuOu4NrtZd5wsnA0dtrx3L9Q=",
+ "expected_dev_confirm": "UyFKxAo6fQGMQucvWC/gddipc6mb3/RYXdxrd2uWxPE=",
+ "shared_key": "YGqdquJu9GLHgIzywfSOUvryd4HEYRxEYA+8fVYmEJI=",
+ "key": "tizWKg4QhD0AHeUyKVI3Mg==",
+ "base_nonce": "5MmCpuJeVepwIFdJ",
+ "seq": 9,
+ "plaintext": "{\"method\":\"get_device_info\"}",
+ "ciphertext_and_tag": "IIuZe/OsNk5EmDxNROLy1LuZCqw8caQNdDByiM2+mKwypIKTpr0L/DakOQI=",
+ "register_username_md5": "21232f297a57a5a743894a0e4a801fc3"
+}
